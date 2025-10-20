@@ -1,5 +1,5 @@
 # Imagem base com Java 17
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-slim
 
 # Pasta de trabalho
 WORKDIR /app
@@ -24,3 +24,4 @@ EXPOSE 8080
 
 # Comando para rodar o JAR (vai pegar automaticamente o JAR gerado)
 CMD ["sh", "-c", "java -jar target/$(ls target | grep .jar | head -n 1)"]
+
