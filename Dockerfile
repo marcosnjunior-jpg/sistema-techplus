@@ -5,7 +5,7 @@ FROM openjdk:17-slim
 WORKDIR /app
 
 # Instala Maven
-RUN apk add --no-cache maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
 # Copia pom.xml primeiro
 COPY pom.xml .
@@ -24,4 +24,5 @@ EXPOSE 8080
 
 # Comando para rodar o JAR (vai pegar automaticamente o JAR gerado)
 CMD ["sh", "-c", "java -jar target/$(ls target | grep .jar | head -n 1)"]
+
 
