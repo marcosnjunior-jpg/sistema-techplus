@@ -1,12 +1,94 @@
-<body>
-    <!-- Menu -->
-    <nav style="text-align: center; margin: 20px;">
-        <a href="/" style="margin-right: 20px; text-decoration: none;">Início</a>
-        <a href="/produto" style="text-decoration: none;">Produto</a>
-    </nav>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema TechPlus</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f0f2f5; transition: background 0.3s; }
+    nav { background:#007BFF; color:white; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.2); position:sticky; top:0; z-index:100; }
+    nav .logo { font-size:1.6em; font-weight:bold; display:flex; align-items:center; }
+    nav .logo::before { content:"💻"; margin-right:8px; }
+    nav ul { list-style:none; display:flex; margin:0; padding:0; }
+    nav ul li { margin-left:20px; }
+    nav ul li a { color:white; text-decoration:none; padding:8px 14px; border-radius:6px; cursor:pointer; display:flex; align-items:center; transition:background 0.3s; }
+    nav ul li a:hover, nav ul li a.active { background:#0056b3; }
+    nav ul li a::before { margin-right:5px; }
+    nav ul li a[data-tab="inicio"]::before { content:"🏠"; }
+    nav ul li a[data-tab="produtos"]::before { content:"📦"; }
+    nav ul li a[data-tab="sobre"]::before { content:"ℹ️"; }
+    nav ul li a[data-tab="contato"]::before { content:"✉️"; }
 
-    <!-- Tabela -->
-    <table>
+    .tab-content { display:none; padding:30px 20px; width:90%; margin:20px auto; background:white; box-shadow:0 0 15px rgba(0,0,0,0.1); border-radius:10px; opacity:0; transform:translateY(20px); transition:opacity 0.3s, transform 0.3s; }
+    .tab-content.active { display:block; opacity:1; transform:translateY(0); }
+    h2 { margin-top:0; color:#007BFF; display:flex; align-items:center; }
+    h2::before { content:"🖥️"; margin-right:8px; }
+
+    table { width:100%; border-collapse:collapse; margin-top:15px; }
+    th, td { border:1px solid #ddd; padding:12px; text-align:left; }
+    th { background:#007BFF; color:white; }
+    caption { font-size:1.5em; margin-bottom:10px; font-weight:bold; color:#007BFF; }
+
+    button { padding:6px 12px; border:none; border-radius:6px; cursor:pointer; color:white; transition: transform 0.2s; }
+    button:hover { transform:scale(1.05); }
+    .edit-btn { background:#28a745; }
+    .delete-btn { background:#dc3545; }
+    .add-btn { background:#007BFF; margin-bottom:10px; }
+    .export-btn { background:#17a2b8; margin-left:10px; }
+
+    form { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+    form input, form textarea { padding:8px; border-radius:6px; border:1px solid #ccc; flex:1 1 200px; }
+    form label { font-weight:bold; width:100%; }
+
+    .modal { display:none; position:fixed; z-index:200; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    .modal-content { background:white; padding:25px; border-radius:8px; text-align:center; width:320px; }
+    .modal button { margin:5px; }
+
+    .dashboard { margin-top:20px; display:flex; flex-wrap:wrap; justify-content:space-around; gap:20px; }
+    canvas { background:#f9f9f9; border-radius:8px; padding:15px; flex:1 1 400px; }
+
+    .footer { text-align:center; margin:20px 0; font-size:0.9em; color:#555; }
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">TechPlus</div>
+    <ul>
+        <li><a class="tab-link active" data-tab="inicio">Início</a></li>
+        <li><a class="tab-link" data-tab="produtos">Produtos</a></li>
+        <li><a class="tab-link" data-tab="sobre">Sobre</a></li>
+        <li><a class="tab-link" data-tab="contato">Contato</a></li>
+    </ul>
+</nav>
+
+<div id="inicio" class="tab-content active">
+    <h2>Bem-vindo ao Sistema TechPlus!</h2>
+    <p>Gerencie seus produtos, visualize estoque, preços médios e produtos críticos.</p>
+    <div class="dashboard">
+        <canvas id="stockChart"></canvas>
+        <canvas id="priceChart"></canvas>
+        <canvas id="lowStockChart"></canvas>
+    </div>
+</div>
+
+<div id="produtos" class="tab-content">
+    <h2>Produtos</h2>
+    <form id="product-form">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required>
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" rows="2" required></textarea>
+        <label for="preco">Preço (R$):</label>
+        <input type="number" id="preco" step="0.01" required>
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" id="quantidade" required>
+        <button type="submit" class="add-btn">Adicionar Produto</button>
+        <button type="button" id="export-btn" class="export-btn">Exportar CSV</button>
+    </form>
+
+    <table id="product-table">
         <caption>Lista de Produtos</caption>
         <thead>
             <tr>
@@ -14,27 +96,123 @@
                 <th>Descrição</th>
                 <th>Preço (R$)</th>
                 <th>Quantidade</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Notebook</td>
-                <td>Notebook com 16GB de RAM</td>
-                <td>4500,00</td>
-                <td>5</td>
-            </tr>
-            <tr>
-                <td>Smartphone</td>
-                <td>Smartphone Android 128GB</td>
-                <td>2200,00</td>
-                <td>10</td>
-            </tr>
-            <tr>
-                <td>Impressora</td>
-                <td>Impressora a jato de tinta</td>
-                <td>750,00</td>
-                <td>3</td>
-            </tr>
+            <tr><td>Notebook</td><td>16GB RAM</td><td>4500.00</td><td>5</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td></tr>
+            <tr><td>Smartphone</td><td>Android 128GB</td><td>2200.00</td><td>10</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td></tr>
+            <tr><td>Impressora</td><td>Jato de tinta</td><td>750.00</td><td>3</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td></tr>
         </tbody>
     </table>
+</div>
+
+<div id="sobre" class="tab-content">
+    <h2>Sobre</h2>
+    <p>TechPlus é um sistema completo para gerenciamento de produtos, desenvolvido por <strong>Marcos Sampaio</strong>.</p>
+</div>
+
+<div id="contato" class="tab-content">
+    <h2>Contato</h2>
+    <p>Email: <strong>suporte@techplus.com</strong><br>Telefone: (11) 1234-5678</p>
+</div>
+
+<div id="delete-modal" class="modal">
+    <div class="modal-content">
+        <p>Tem certeza que deseja excluir este produto?</p>
+        <button id="confirm-delete" class="delete-btn">Sim</button>
+        <button id="cancel-delete" class="edit-btn">Não</button>
+    </div>
+</div>
+
+<div class="footer">Desenvolvido por Marcos Sampaio</div>
+
+<script>
+    const links = document.querySelectorAll('.tab-link');
+    const contents = document.querySelectorAll('.tab-content');
+    const tableBody = document.querySelector('#product-table tbody');
+    const form = document.getElementById('product-form');
+    let currentDeleteRow = null;
+
+    links.forEach(link => link.addEventListener('click', () => {
+        links.forEach(l => l.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById(link.dataset.tab).classList.add('active');
+        updateCharts();
+    }));
+
+    function attachRowEvents(row){
+        row.querySelector('.edit-btn').onclick = () => {
+            document.getElementById('nome').value = row.children[0].textContent;
+            document.getElementById('descricao').value = row.children[1].textContent;
+            document.getElementById('preco').value = row.children[2].textContent;
+            document.getElementById('quantidade').value = row.children[3].textContent;
+            row.remove();
+            updateCharts();
+        };
+        row.querySelector('.delete-btn').onclick = () => {
+            currentDeleteRow = row;
+            document.getElementById('delete-modal').style.display='flex';
+        };
+    }
+
+    document.querySelectorAll('#product-table tbody tr').forEach(attachRowEvents);
+
+    form.onsubmit = e => {
+        e.preventDefault();
+        const nome=document.getElementById('nome').value;
+        const descricao=document.getElementById('descricao').value;
+        const preco=parseFloat(document.getElementById('preco').value).toFixed(2);
+        const quantidade=document.getElementById('quantidade').value;
+        const row=document.createElement('tr');
+        row.innerHTML=`<td>${nome}</td><td>${descricao}</td><td>${preco}</td><td>${quantidade}</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td>`;
+        tableBody.appendChild(row);
+        attachRowEvents(row);
+        form.reset();
+        updateCharts();
+    };
+
+    document.getElementById('confirm-delete').onclick = () => { if(currentDeleteRow) currentDeleteRow.remove(); document.getElementById('delete-modal').style.display='none'; updateCharts(); };
+    document.getElementById('cancel-delete').onclick = () => { document.getElementById('delete-modal').style.display='none'; };
+
+    document.getElementById('export-btn').onclick = () => {
+        let csv='Nome,Descrição,Preço,Quantidade\n';
+        tableBody.querySelectorAll('tr').forEach(row => {
+            const cols = row.querySelectorAll('td');
+            csv += `${cols[0].textContent},${cols[1].textContent},${cols[2].textContent},${cols[3].textContent}\n`;
+        });
+        const blob = new Blob([csv], {type:'text/csv'});
+        const link = document.createElement('a');
+        link.href=URL.createObjectURL(blob);
+        link.download='produtos.csv';
+        link.click();
+    };
+
+    const ctx1 = document.getElementById('stockChart').getContext('2d');
+    const ctx2 = document.getElementById('priceChart').getContext('2d');
+    const ctx3 = document.getElementById('lowStockChart').getContext('2d');
+
+    const stockChart = new Chart(ctx1,{type:'bar',data:{labels:[],datasets:[{label:'Quantidade',data:[],backgroundColor:'#007BFF'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+    const priceChart = new Chart(ctx2,{type:'line',data:{labels:[],datasets:[{label:'Preço',data:[],borderColor:'#28a745',fill:false}]},options:{plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}}}});
+    const lowStockChart = new Chart(ctx3,{type:'pie',data:{labels:[],datasets:[{label:'Estoque Crítico',data:[],backgroundColor:['#dc3545','#ffc107','#28a745']}]},options:{plugins:{legend:{position:'bottom'}}}});
+
+    function updateCharts(){
+        const rows = tableBody.querySelectorAll('tr');
+        const labels=[], qty=[], prices=[], lowLabels=[], lowQty=[];
+        rows.forEach(r=>{
+            const nome=r.children[0].textContent;
+            const preco=parseFloat(r.children[2].textContent);
+            const quantidade=parseInt(r.children[3].textContent);
+            labels.push(nome); qty.push(quantidade); prices.push(preco);
+            if(quantidade<5){ lowLabels.push(nome); lowQty.push(quantidade); }
+        });
+        stockChart.data.labels=labels; stockChart.data.datasets[0].data=qty; stockChart.update();
+        priceChart.data.labels=labels; priceChart.data.datasets[0].data=prices; priceChart.update();
+        lowStockChart.data.labels=lowLabels; lowStockChart.data.datasets[0].data=lowQty; lowStockChart.update();
+    }
+
+    updateCharts();
+</script>
 </body>
+</html>
