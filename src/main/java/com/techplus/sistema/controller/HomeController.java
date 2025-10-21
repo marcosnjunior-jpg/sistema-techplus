@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
+    @GetMapping("/")           // <- mapeia a raiz "/"
     public String home() {
-        return "home"; // nome da view
+        return "index";        // <- nome do template sem extensão
     }
 }
