@@ -1,4 +1,4 @@
-package c.techplus.sistema.controller;
+package com.techplus.sistema.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
