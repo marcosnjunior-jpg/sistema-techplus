@@ -143,4 +143,204 @@ body.dark .modal-content { background:#1e1e1e; color:white; }
 canvas { background:#f9f9f9; border-radius:8px; padding:15px; height:200px; }
 body.dark canvas { background:#2c2c2c; }
 
-/
+/* Footer */
+.footer {
+    text-align:center;
+    margin:20px 0;
+    font-size:0.9em;
+    color:#555;
+    line-height:1.5em;
+}
+.footer-content p { margin:4px 0; }
+body.dark .footer { color:#aaa; }
+
+/* Animation for new table rows */
+@keyframes fadeInUp { 0% { opacity:0; transform:translateY(20px); } 100% { opacity:1; transform:translateY(0); } }
+tr.new { animation: fadeInUp 0.5s ease forwards; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">TechPlus</div>
+    <ul>
+        <li><a class="tab-link active" data-tab="inicio">Início</a></li>
+        <li><a class="tab-link" data-tab="produtos">Produtos</a></li>
+        <li><a class="tab-link" data-tab="sobre">Sobre</a></li>
+        <li><a class="tab-link" data-tab="contato">Contato</a></li>
+    </ul>
+    <button class="dark-toggle" id="darkToggle">Dark Mode</button>
+</div>
+
+<div class="main">
+    <div id="inicio" class="tab-content active">
+        <h2>Bem-vindo ao Sistema TechPlus!</h2>
+        <p>Gerencie seus produtos, visualize estoque, preços médios e produtos críticos.</p>
+        <div class="dashboard">
+            <div class="card" id="card1"><canvas id="stockChart"></canvas></div>
+            <div class="card" id="card2"><canvas id="priceChart"></canvas></div>
+            <div class="card" id="card3"><canvas id="lowStockChart"></canvas></div>
+        </div>
+    </div>
+
+    <div id="produtos" class="tab-content">
+        <h2>Produtos</h2>
+        <form id="product-form">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" required>
+            <label for="descricao">Descrição:</label>
+            <textarea id="descricao" rows="2" required></textarea>
+            <label for="preco">Preço (R$):</label>
+            <input type="number" id="preco" step="0.01" required>
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" id="quantidade" required>
+            <button type="submit" class="add-btn">Adicionar Produto</button>
+            <button type="button" id="export-btn" class="export-btn">Exportar CSV</button>
+        </form>
+
+        <table id="product-table">
+            <caption>Lista de Produtos</caption>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Preço (R$)</th>
+                    <th>Quantidade</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="new"><td>Notebook</td><td>16GB RAM</td><td>4500.00</td><td>5</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td></tr>
+                <tr class="new"><td>Smartphone</td><td>Android 128GB</td><td>2200.00</td><td>10</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td></tr>
+                <tr class="new"><td>Impressora</td><td>Jato de tinta</td><td>750.00</td><td>3</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="sobre" class="tab-content">
+        <h2>Sobre</h2>
+        <p>TechPlus é um sistema completo para gerenciamento de produtos, desenvolvido por <strong>Marcos Sampaio</strong>.</p>
+    </div>
+
+    <div id="contato" class="tab-content">
+        <h2>Contato</h2>
+        <p>Email: <strong>suporte@techplus.com</strong><br>Telefone: (71) 3303-1155</p>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal">
+    <div class="modal-content">
+        <p>Tem certeza que deseja excluir este produto?</p>
+        <button id="confirm-delete" class="delete-btn">Sim</button>
+        <button id="cancel-delete" class="edit-btn">Não</button>
+    </div>
+</div>
+
+<!-- Footer atualizado -->
+<div class="footer">
+    <div class="footer-content">
+        <p>🖋️ <strong>Desenvolvedor:</strong> Marcos Sampaio</p>
+        <p>🏫 <strong>Local / Instituição:</strong> SENAI (Dendezeiros) / Salvador-BA</p>
+        <p>👨‍🏫 <strong>Docente:</strong> Carlos Anderson</p>
+    </div>
+</div>
+
+<script>
+const links=document.querySelectorAll('.tab-link');
+const contents=document.querySelectorAll('.tab-content');
+const tableBody=document.querySelector('#product-table tbody');
+const form=document.getElementById('product-form');
+let currentDeleteRow=null;
+
+links.forEach(link=>link.addEventListener('click',()=>{
+    links.forEach(l=>l.classList.remove('active'));
+    contents.forEach(c=>c.classList.remove('active'));
+    link.classList.add('active');
+    document.getElementById(link.dataset.tab).classList.add('active');
+    updateCharts();
+}));
+
+function attachRowEvents(row){
+    row.querySelector('.edit-btn').onclick=()=>{
+        document.getElementById('nome').value=row.children[0].textContent;
+        document.getElementById('descricao').value=row.children[1].textContent;
+        document.getElementById('preco').value=row.children[2].textContent;
+        document.getElementById('quantidade').value=row.children[3].textContent;
+        row.remove(); updateCharts();
+    };
+    row.querySelector('.delete-btn').onclick=()=>{
+        currentDeleteRow=row;
+        document.getElementById('delete-modal').style.display='flex';
+    };
+}
+document.querySelectorAll('#product-table tbody tr').forEach(attachRowEvents);
+
+form.onsubmit=e=>{
+    e.preventDefault();
+    const nome=document.getElementById('nome').value;
+    const descricao=document.getElementById('descricao').value;
+    const preco=parseFloat(document.getElementById('preco').value).toFixed(2);
+    const quantidade=document.getElementById('quantidade').value;
+    const row=document.createElement('tr');
+    row.classList.add('new');
+    row.innerHTML=`<td>${nome}</td><td>${descricao}</td><td>${preco}</td><td>${quantidade}</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td>`;
+    tableBody.appendChild(row);
+    attachRowEvents(row);
+    form.reset();
+    updateCharts();
+};
+
+document.getElementById('confirm-delete').onclick=()=>{
+    if(currentDeleteRow) currentDeleteRow.remove();
+    document.getElementById('delete-modal').style.display='none';
+    updateCharts();
+};
+document.getElementById('cancel-delete').onclick=()=>{document.getElementById('delete-modal').style.display='none';};
+
+document.getElementById('export-btn').onclick=()=>{
+    let csv='Nome,Descrição,Preço,Quantidade\n';
+    tableBody.querySelectorAll('tr').forEach(row=>{
+        const cols=row.querySelectorAll('td');
+        csv+=`${cols[0].textContent},${cols[1].textContent},${cols[2].textContent},${cols[3].textContent}\n`;
+    });
+    const blob=new Blob([csv],{type:'text/csv'});
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(blob);
+    link.download='produtos.csv';
+    link.click();
+};
+
+const ctx1=document.getElementById('stockChart').getContext('2d');
+const ctx2=document.getElementById('priceChart').getContext('2d');
+const ctx3=document.getElementById('lowStockChart').getContext('2d');
+
+const stockChart=new Chart(ctx1,{type:'bar',data:{labels:[],datasets:[{label:'Quantidade',data:[],backgroundColor:'#007BFF'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}},animation:{duration:1000}}});
+const priceChart=new Chart(ctx2,{type:'line',data:{labels:[],datasets:[{label:'Preço',data:[],borderColor:'#28a745',fill:false}]},options:{plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}},animation:{duration:1000}}});
+const lowStockChart=new Chart(ctx3,{type:'pie',data:{labels:[],datasets:[{label:'Estoque Crítico',data:[],backgroundColor:['#dc3545','#ffc107','#28a745']}]},options:{plugins:{legend:{position:'bottom'}},animation:{duration:1000}}});
+
+function updateCharts(){
+    const rows=tableBody.querySelectorAll('tr');
+    const labels=[],qty=[],prices=[],lowLabels=[],lowQty=[];
+    rows.forEach(r=>{
+        const nome=r.children[0].textContent;
+        const preco=parseFloat(r.children[2].textContent);
+        const quantidade=parseInt(r.children[3].textContent);
+        labels.push(nome); qty.push(quantidade); prices.push(preco);
+        if(quantidade<5){ lowLabels.push(nome); lowQty.push(quantidade); }
+    });
+    stockChart.data.labels=labels; stockChart.data.datasets[0].data=qty; stockChart.update();
+    priceChart.data.labels=labels; priceChart.data.datasets[0].data=prices; priceChart.update();
+    lowStockChart.data.labels=lowLabels; lowStockChart.data.datasets[0].data=lowQty; lowStockChart.update();
+}
+
+// Animate cards
+const cards=document.querySelectorAll('.card');
+cards.forEach((c,i)=>{setTimeout(()=>c.classList.add('show'),i*200);});
+
+// Dark mode toggle
+document.getElementById('darkToggle').onclick=()=>{document.body.classList.toggle('dark');};
+
+updateCharts();
+</script>
+</body>
+</html>
