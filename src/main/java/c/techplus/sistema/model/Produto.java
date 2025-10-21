@@ -1,4 +1,4 @@
-package c.techplus.sistema.model;
+package com.techplus.sistema.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,10 +17,16 @@ public class Produto {
     private double preco;
     private int quantidade;
 
-    // Construtor vazio
+    // Construtor vazio (necessário para JPA)
     public Produto() {}
 
-    // Construtor com campos
+    // Construtor existente (exemplo com nome e preço)
+    public Produto(String nome, Double preco) {
+        this.nome = nome;
+        this.preco = preco;
+    }
+
+    // ✅ Novo construtor completo para 4 parâmetros
     public Produto(String nome, String descricao, double preco, int quantidade) {
         this.nome = nome;
         this.descricao = descricao;
