@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")           // <- mapeia a raiz "/"
+    @GetMapping("/")  // Mapeia a URL raiz (ex: https://sistema-techplus.onrender.com/)
     public String home() {
-        return "index";        // <- nome do template sem extensão
+        return "index"; // Retorna o template "index.html" da pasta templates
     }
 }
