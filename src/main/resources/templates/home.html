@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <title>Sistema TechPlus</title>
+    <meta charset="UTF-8">
+    <title>Home - Sistema TechPlus</title>
 </head>
 <body>
-    <h1>O sistema está funcionando!</h1>
+    <h1 th:text="${mensagem}">Mensagem</h1>
+    <a href="/produtos">Ver Produtos</a>
 </body>
 </html>
