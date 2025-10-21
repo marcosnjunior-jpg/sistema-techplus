@@ -213,6 +213,8 @@ tr.new { animation: fadeInUp 0.5s ease forwards; }
     <div id="sobre" class="tab-content">
         <h2>Sobre</h2>
         <p>TechPlus é um sistema inovador para controle e otimização de produtos, criado por <strong>Marcos Sampaio</strong>.</p>
+        <p><strong>Local/Instituição:</strong> SENAI (Dendezeiros) / Salvador-BA</p>
+        <p><strong>Docente:</strong> Carlos Anderson</p>
     </div>
 
     <div id="contato" class="tab-content">
@@ -229,7 +231,7 @@ tr.new { animation: fadeInUp 0.5s ease forwards; }
     </div>
 </div>
 
-<div class="footer">TechPlus — inovação e eficiência no gerenciamento de produtos | Desenvolvido por <strong>Marcos Sampaio</strong></div>
+<div class="footer">Desenvolvido por Marcos Sampaio</div>
 
 <script>
 const links=document.querySelectorAll('.tab-link');
@@ -249,84 +251,4 @@ links.forEach(link=>link.addEventListener('click',()=>{
 function attachRowEvents(row){
     row.querySelector('.edit-btn').onclick=()=>{
         document.getElementById('nome').value=row.children[0].textContent;
-        document.getElementById('descricao').value=row.children[1].textContent;
-        document.getElementById('preco').value=row.children[2].textContent;
-        document.getElementById('quantidade').value=row.children[3].textContent;
-        row.remove(); updateCharts();
-    };
-    row.querySelector('.delete-btn').onclick=()=>{
-        currentDeleteRow=row;
-        document.getElementById('delete-modal').style.display='flex';
-    };
-}
-document.querySelectorAll('#product-table tbody tr').forEach(attachRowEvents);
-
-form.onsubmit=e=>{
-    e.preventDefault();
-    const nome=document.getElementById('nome').value;
-    const descricao=document.getElementById('descricao').value;
-    const preco=parseFloat(document.getElementById('preco').value).toFixed(2);
-    const quantidade=document.getElementById('quantidade').value;
-    const row=document.createElement('tr');
-    row.classList.add('new');
-    row.innerHTML=`<td>${nome}</td><td>${descricao}</td><td>${preco}</td><td>${quantidade}</td><td><button class="edit-btn">Editar</button> <button class="delete-btn">Excluir</button></td>`;
-    tableBody.appendChild(row);
-    attachRowEvents(row);
-    form.reset();
-    updateCharts();
-};
-
-document.getElementById('confirm-delete').onclick=()=>{
-    if(currentDeleteRow) currentDeleteRow.remove();
-    document.getElementById('delete-modal').style.display='none';
-    updateCharts();
-};
-document.getElementById('cancel-delete').onclick=()=>{document.getElementById('delete-modal').style.display='none';};
-
-document.getElementById('export-btn').onclick=()=>{
-    let csv='Nome,Descrição,Preço,Quantidade\n';
-    tableBody.querySelectorAll('tr').forEach(row=>{
-        const cols=row.querySelectorAll('td');
-        csv+=`${cols[0].textContent},${cols[1].textContent},${cols[2].textContent},${cols[3].textContent}\n`;
-    });
-    const blob=new Blob([csv],{type:'text/csv'});
-    const link=document.createElement('a');
-    link.href=URL.createObjectURL(blob);
-    link.download='produtos.csv';
-    link.click();
-};
-
-const ctx1=document.getElementById('stockChart').getContext('2d');
-const ctx2=document.getElementById('priceChart').getContext('2d');
-const ctx3=document.getElementById('lowStockChart').getContext('2d');
-
-const stockChart=new Chart(ctx1,{type:'bar',data:{labels:[],datasets:[{label:'Quantidade',data:[],backgroundColor:'#007BFF'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}},animation:{duration:1000}}});
-const priceChart=new Chart(ctx2,{type:'line',data:{labels:[],datasets:[{label:'Preço',data:[],borderColor:'#28a745',fill:false}]},options:{plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}},animation:{duration:1000}}});
-const lowStockChart=new Chart(ctx3,{type:'pie',data:{labels:[],datasets:[{label:'Estoque Crítico',data:[],backgroundColor:['#dc3545','#ffc107','#28a745']}]},options:{plugins:{legend:{position:'bottom'}},animation:{duration:1000}}});
-
-function updateCharts(){
-    const rows=tableBody.querySelectorAll('tr');
-    const labels=[],qty=[],prices=[],lowLabels=[],lowQty=[];
-    rows.forEach(r=>{
-        const nome=r.children[0].textContent;
-        const preco=parseFloat(r.children[2].textContent);
-        const quantidade=parseInt(r.children[3].textContent);
-        labels.push(nome); qty.push(quantidade); prices.push(preco);
-        if(quantidade<5){ lowLabels.push(nome); lowQty.push(quantidade); }
-    });
-    stockChart.data.labels=labels; stockChart.data.datasets[0].data=qty; stockChart.update();
-    priceChart.data.labels=labels; priceChart.data.datasets[0].data=prices; priceChart.update();
-    lowStockChart.data.labels=lowLabels; lowStockChart.data.datasets[0].data=lowQty; lowStockChart.update();
-}
-
-// Animate cards
-const cards=document.querySelectorAll('.card');
-cards.forEach((c,i)=>{setTimeout(()=>c.classList.add('show'),i*200);});
-
-// Dark mode toggle
-document.getElementById('darkToggle').onclick=()=>{document.body.classList.toggle('dark');};
-
-updateCharts();
-</script>
-</body>
-</html>
+        document.getElementBy
